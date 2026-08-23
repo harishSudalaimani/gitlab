@@ -43,7 +43,8 @@ spec:
           # Gateway API
           #
           # Cilium + Gateway API are already running in the cluster.
-          # GitLab must NOT install Envoy Gateway.
+          # GitLab routing is managed by a separate HTTPRoute manifest
+          # in this repository.
           # ==========================================================
 
           gatewayApi:
