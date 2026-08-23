@@ -1,0 +1,14 @@
+apiVersion: bitnami.com/v1alpha1
+kind: SealedSecret
+metadata:
+  name: gitlab-registry-storage
+  namespace: gitlab
+  annotations:
+    argocd.argoproj.io/sync-wave: "39"
+spec:
+  encryptedData:
+    config: AgA277zCLs5pbnq3prvvq0jfe0wddHjOzJanx8ni1ImpmPWtrBAxjSOqIIWGgmTNMv/Z1dPNa0wAQYAbAb/1l01AKxDz9bbmiIBBuC6f57RhPB0XXCPzOKKj/YFf0RIhriNx+z2a50pTcIpWqVei+L1FyMkL44lr+4+HE6mGaGgtgZnkfkLdrtrmKjs9hByfdoohS8XxCYcoFw8p6kGVGtNrly9xN/ZiWDy6EA1TTMKLKM0QnpbFJk0WwzmUpmPf/De6xF0XhMv+OR7481wKhunUyY2c6R5EZKhKAtKvw101pv3CZyWTc0Mjgjb0RHvTaQhu5w+t8VK7B74OLpjUKowKDl82PjVIxhCpUqELAVsgtJv9heOg2UCFSwskSn3F5qrwzfKVnzc23+yN1x5XK4LuMYs8CYjQro0bkfi7LK8sPo9LPnYVZstmWfxq4tAwMTyC79PI5GJ+1q/3DuFBwysPNpPwZmjPN/YwbgqxbyhuMY1yQppBU0fdcOmereTRrY0OL+IqjVx1pYprGnDqBby39cxFo/qGSgFlYTdy0brzX2OW7VtWGTcunWnM7ZDojB+Opb0wRrEPL+TuTfqXlh1z2oqv6vpamplIqF/GO5pruHXWm0JdnN2pA4GO1njx7M+4NDj5Ysw1kDDwjhP/NqgXJt+i/1clF2DmFFUORt0T6RpBL2B81QEfX8nALIHbXhFgDzJFW1/EMhJmHyuz5HcSrYaMkiShBXVGRCLc3nKfzJ0TNec6A/FCjjETHcTmBY2P+rpL4MAhTtQgcu5FdICsnBG8A6f5A1rYR9N4OhUGlc2/oJL+EMi076oU3zzjONCJc/lV6mLcXpfMWIgYBvr7te+EK2GEKiN/pbcugwRzRoZZMkTpst6QQhuT0xirY0mgCbeqVpe2mo1jUQNgZE0bVQnIgbNbPydv8hy8wQNKEQvae6KGfvsbtQYQ+XA/asVNyZG7oFyEfgPsW0VTdEP/JWLOk+uT2lnpbVNTMC8a7E01649iuVakLqIcoC9iWspdD7bImaOe7XjoKcqHjgEFnCqvdmg1rQqKRthrVuNtJIu5QjaPGyzHiQ==
+  template:
+    metadata:
+      name: gitlab-registry-storage
+      namespace: gitlab

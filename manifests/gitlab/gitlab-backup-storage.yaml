@@ -1,0 +1,15 @@
+
+apiVersion: bitnami.com/v1alpha1
+kind: SealedSecret
+metadata:
+  name: gitlab-backup-storage
+  namespace: gitlab
+  annotations:
+    argocd.argoproj.io/sync-wave: "39"
+spec:
+  encryptedData:
+    config: AgByKzPUXkgHRX7mlvJ2oOvYuJeCJSgP7Az92D5zYAW0djcFK0tOK/EdRgxPAJuoEpEdIWSdZxOkZm0TMKXm7antDL2olHujGc7N1xATvxiuOWzM3LsoTqgFQfxlqoP5Akfu6kbr1JSNFiZ30M01xAfyoQ7FSRYS77tC1Fe4G8oM4BQRk+Olav0S63lEKE+A2Hoi1S43gr1R81Ev7hgBmIox96AD0qunB/cj0h9dEkTWZ2Fg4RRE/+VObTusmUao35sb/iFG47U5Cn0bHUQPZS5WnTA2ZXLoDCn+54KnQTSMmhsH0/MBZEbWf20BQghn19bFQfeDI4js1SZ7J687r91qP4p9HyF53FmFNU/GkQmBXg9tMxVQoV6GE2hFs1T8wGn5arFkErZInWpqJUNvak0HWgnH5V9doXZ3aQbULz9btZgKptSGuQ+eDktIsxWAW/+J9N34CmUisxrBK5skgRKS2nTVWWOzG9as+JFkMBENCpU/rS5iONxF+nW/KUklvOWATaxLI8/NZx51SuTTak/J2hLFato6Mqw9aSra6mStZuB5kfbiaq4Mb/p0bXPJjtrnSEbhbTh/nic+RpCbFbHDRSDaFKX79h2oFf87KtRTifT6uq1Sx8mQKEimJhRZAOUbfjv6HDpITqqNLYWdmR67VRvidNQ6h71oWjeAA3h694OiYm+TGhsq5M3b4L8YNAX6pItWspihhLgse19UVBP63p5oyvLL9dac3Jce6PzP2FPHx1in0uTqDLKo9/wOjJX0LcSSkLZDLie+Kn9Ghp/Ld4ueYFievl4WocQ0FBTAyMnb22BRmumaREQ4chiryYo7p/fX5FXsehE4yDbpIAARjP4QJZcknLZfjUtEhpB3RaEeGlVXVYoUWuikyOd8LJFOm4/K0LuWjIhb5oSMF4TRYyjbnH6FlcqMrDtleHcwaKuOEk6oooaHcSjx5hcH58ZjYcOoryPrctbEg4G6xwJfTagurUrLUpNM+3o9e9LSen4bLaz3/vUpPdNYZ3TYhaCkEmZQRaJFtAXlhLKW9YG2e4zPbIlL4QrCF/lSSktlN+u+9y5CHGrU
+  template:
+    metadata:
+      name: gitlab-backup-storage
+      namespace: gitlab
