@@ -1,0 +1,57 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+
+metadata:
+  name: valkey
+  namespace: argocd
+
+  annotations:
+    argocd.argoproj.io/sync-wave: "31"
+
+spec:
+  project: homelab
+
+  source:
+    repoURL: https://valkey.io/valkey-helm/
+    chart: valkey
+    targetRevision: 0.11.0
+
+    helm:
+      values: |
+        auth:
+          enabled: true
+          usersExistingSecret: valkey-credentials
+
+          aclUsers:
+            default:
+              permissions: "~* &* +@all"
+
+        dataStorage:
+          enabled: true
+          requestedSize: 10Gi
+          className: longhorn
+
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
+
+        service:
+          type: ClusterIP
+          port: 6379
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: valkey
+
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
