@@ -1,0 +1,16 @@
+apiVersion: bitnami.com/v1alpha1
+kind: SealedSecret
+metadata:
+  name: gitlab-postgres
+  namespace: databases
+spec:
+  encryptedData:
+    password: AgAo5MhlKSCmt96KKi+J040RmPfafTbRqc+z1QpMFV/V2z2SWT7LSDZEDiCWmAOU3fOsLaVzmRekesQzGRNUVfJwU4e0vdB4EF3JY+WJH9P51j2OpupIS8KjWwIyfXo8INDl/V0qEL44eHLLPOkgGZ5SJZ6iGPAMcGJ3AHZKIHFhcKobdjTAOJP22ZFbCRJHWWwHS6fESbbslz7/lNOwM6Qn5WtP5+lYuUOZmK9dJFjn1bGG6Q+hi93/QZ8/Gzr/pmoYVQK/jFfenBOMzYLhbtMR3+AwUzrDzkiUzua/PdcJcIFYIj4WLih4KFc8rXx2IvibkF5Up2AkedyGPDK36brT0PFQi2sCIT1f8ebCFsJdmCfamGDfTIHzdBxitNrmlfFDEzbyiBtCNPlnK6ZV6kIKmYdfqulqA8n56cnVf2wGErp8h+mvZlNLl0ksN9s7X+tMwRvMt3OCCitJZIFgyxUnzuid0Gg3FoB+M/BZ8T9JD/QAfuqgAJob8rcqvCjltTEmE9I00XVKaf+xVkSHAIWMVl1jypo6yZrP0p1I47KUziWR5lKuYDpTrh66LEE8cGzBm6QAckL7C1IvmUVzLQKHY0R+6Eku+VI98S2qXSb5YaLXbq2WwUqYUX2FAVkbOgTRnMqtu5ZfMG0cxBz6H76waHQ/v/UDcjG+lQxW6lGtqovGCjC1Vclh+9SJM7tppCJ3hRQiJ5aa44Lbd10ZbzLZAiIzKRKInKJQTldHQreCxWU7gNFK+YK2rq0xxQ==
+    username: AgA9zXVl3ANV1CWtc/LGhtRTfGmsNxyZ5/ZXmwPYJvg/0HGueRiPJwQ+GpzTI9D+shOuOs8Z2mpM8JIVxZP1E9lhRyIuqb1/bYLA1gmbf0iaGtCGrhhCGheTn3wg9a6ZnTPxHDE/TkuVctEpD+ZpV0xkimQTu8K0jDEVxNk6eYsVcG8VVLUhvwYWgFWa7abnmQAOXcQ+qSrpQbZGTngKV4WQFc+q/8YXCuqCVZZgWc402klpAOZoDiKUoyeVhC/SgFOq6IxPH0fpLFyGG3kXqeDO7vBeQLwGnGo6ayBiiPP3Yv/hN0994HOU+RhE8ESgoto8L7Np+v5HKcs4wLbaeTRmlSJDIAq2lesP253vcakmlmn+5ECAoou4yYTYOfW+ekw9SjAAFJEPqjpNZCMcieMsW3DbUljs0wwTkqVY5T2NRPl4cNEoUdbV7LbdGeSSPsO5zGBc6aAKfy+U5r9MbHv8PousNg/8p+OAq+JUlgDxfWEIHyPHsGRo6S7Axuw9rRY0dvTy7iv9GaCqFlDs9QRyRbKy3P3GnRbnxW8Ou5FRalwEvgL8XKWKYYwTNFH+pk50/6ob6PmDAovr4SwgM6gbZ2l9SImiz4fWlfRFIu65yGbK2FFYkufwXx7LvtCIR1IoLDSweui87i/HOB3ILVK6QC5Ham9JERMFXBTONwOiNGivJD9grWhU4X/U1v74aRMZ2RUmkwM=
+  template:
+    metadata:
+      name: gitlab-postgres
+      namespace: databases
+      labels:
+        cnpg.io/reload: "true"
+    type: kubernetes.io/basic-auth

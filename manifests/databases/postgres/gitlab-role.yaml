@@ -1,0 +1,24 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: DatabaseRole
+
+metadata:
+  name: gitlab
+  namespace: databases
+
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+
+spec:
+  cluster:
+    name: postgres
+
+  name: gitlab
+
+  login: true
+  superuser: false
+  createdb: false
+
+  databaseRoleReclaimPolicy: retain
+
+  passwordSecret:
+    name: gitlab-postgres
