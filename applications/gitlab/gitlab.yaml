@@ -297,6 +297,8 @@ spec:
                 memory: 256Mi
 
           gitaly:
+            gomemlimit:
+              enabled: false
             resources:
               requests:
                 cpu: 50m
