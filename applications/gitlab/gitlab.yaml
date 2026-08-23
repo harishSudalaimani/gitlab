@@ -36,6 +36,9 @@ spec:
             registry:
               name: registry.harish8.com
 
+          registry:
+            bucket: gitlab-registry
+
           # ==========================================================
           # Gateway API
           #
@@ -131,10 +134,6 @@ spec:
               proxy_download: true
               bucket: gitlab-lfs
 
-              connection:
-                secret: gitlab-rails-storage
-                key: connection
-
             # --------------------------------------------------------
             # CI/CD artifacts
             # --------------------------------------------------------
@@ -143,10 +142,6 @@ spec:
               enabled: true
               proxy_download: true
               bucket: gitlab-artifacts
-
-              connection:
-                secret: gitlab-rails-storage
-                key: connection
 
             # --------------------------------------------------------
             # User uploads
@@ -157,10 +152,6 @@ spec:
               proxy_download: true
               bucket: gitlab-uploads
 
-              connection:
-                secret: gitlab-rails-storage
-                key: connection
-
             # --------------------------------------------------------
             # Packages
             # --------------------------------------------------------
@@ -169,10 +160,6 @@ spec:
               enabled: true
               proxy_download: true
               bucket: gitlab-packages
-
-              connection:
-                secret: gitlab-rails-storage
-                key: connection
 
             # --------------------------------------------------------
             # Disabled optional storage features
@@ -313,6 +300,25 @@ spec:
         registry:
           enabled: true
           host: registry.harish8.com
+          storage:
+            secret: gitlab-registry-storage
+            key: config
+
+        # ============================================================
+        # TOOLBOX BACKUPS
+        #
+        # The chart no longer uses bundled MinIO for backups.
+        # Point Toolbox at external S3-compatible object storage.
+        # ============================================================
+
+        gitlab:
+          toolbox:
+            backups:
+              objectStorage:
+                backend: s3
+                config:
+                  secret: gitlab-backup-storage
+                  key: config
 
   destination:
     server: https://kubernetes.default.svc
