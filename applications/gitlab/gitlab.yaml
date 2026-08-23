@@ -17,6 +17,9 @@ spec:
     targetRevision: 10.2.4
 
     helm:
+      # Gateway API CRDs are managed separately in-cluster.
+      # Prevent Argo CD from applying bundled chart CRDs.
+      skipCrds: true
       values: |
         # ============================================================
         # GLOBAL
