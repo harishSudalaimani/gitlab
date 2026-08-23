@@ -1,0 +1,25 @@
+{{- if and .Values.enabled (eq "true" (include "gitlab.gatewayApi.route.enabled" .)) (eq "true" (include "gitlab.gatewayApi.envoy.installPolicies" .)) }}
+{{- if .Values.backendTrafficPolicy.spec }}
+{{/*
+BackendTrafficPolicy applying upstream timeout defaults to the Webservice
+HTTPRoute: `tcp.connectTimeout` mirrors an NGINX proxy-connect-timeout and
+`http.streamIdleTimeout` is the closest equivalent to an NGINX
+proxy-read-timeout.
+*/}}
+{{- $spec := deepCopy .Values.backendTrafficPolicy.spec }}
+{{- if not $spec.targetRefs }}
+{{-   $ref := dict "group" "gateway.networking.k8s.io" "kind" "HTTPRoute" "name" (include "webservice.gatewayRoute.name" .) }}
+{{-   $_ := set $spec "targetRefs" (list $ref) }}
+{{- end }}
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: BackendTrafficPolicy
+metadata:
+  name: {{ template "fullname" . }}-btp
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "gitlab.standardLabels" . | nindent 4 }}
+    {{- include "gitlab.commonLabels" . | nindent 4 }}
+spec:
+  {{- $spec | toYaml | nindent 2 }}
+{{- end }}
+{{- end }}

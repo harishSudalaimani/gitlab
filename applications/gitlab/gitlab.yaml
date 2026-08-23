@@ -12,9 +12,10 @@ spec:
   project: homelab
 
   source:
-    repoURL: https://charts.gitlab.io/
-    chart: gitlab
-    targetRevision: 10.2.4
+    repoURL: ssh://git@gitlab.com/harishSudalaimani/gitlab.git
+    targetRevision: main
+    # Vendored GitLab chart 10.2.4 with a small Gitaly StatefulSet patch.
+    path: vendor/gitlab
 
     helm:
       # Gateway API CRDs are managed separately in-cluster.

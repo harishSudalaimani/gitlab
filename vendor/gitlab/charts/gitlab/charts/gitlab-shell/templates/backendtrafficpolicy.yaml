@@ -1,0 +1,37 @@
+{{- if .Values.enabled -}}
+{{-   if eq "true" (include "gitlab.gatewayApi.route.enabled" .) -}}
+{{-     if eq "true" (include "gitlab.gatewayApi.envoy.installPolicies" .) -}}
+{{-       if and .Values.global.shell.tcp.proxyProtocol (eq "true" (include "gitlab.shell.proxyProtocol.outbound" .)) -}}
+{{/*
+Configure a BackendTrafficPolicy to send PROXY v2 headers from Envoy to GitLab Shell.
+
+Envoy must forward the original client address to GitLab Shell via PROXY v2 on the
+backend connection. Without this policy, GitLab Shell records the Envoy source address
+instead of the real client address, breaking auditability, rate limiting, and stricter
+proxyPolicy settings.
+
+Instructs Envoy to send PROXY v2 headers to GitLab Shell on the backend leg.
+Rendered only when both:
+  - global.shell.tcp.proxyProtocol is true (inbound leg active, so Envoy has a real
+    client address to forward), and
+  - the receiver can accept PROXY v2; see gitlab.shell.proxyProtocol.outbound.
+*/}}
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: BackendTrafficPolicy
+metadata:
+  name: {{ template "fullname" . }}
+  namespace: {{ $.Release.Namespace | quote }}
+  labels:
+    {{- include "gitlab.standardLabels" . | nindent 4 }}
+    {{- include "gitlab.commonLabels" . | nindent 4 }}
+spec:
+  targetRefs:
+  - group: gateway.networking.k8s.io
+    kind: TCPRoute
+    name: {{ template "fullname" . }}
+  proxyProtocol:
+    version: V2
+{{-       end }}
+{{-     end }}
+{{-   end }}
+{{- end }}
