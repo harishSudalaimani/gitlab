@@ -239,6 +239,17 @@ spec:
           install: false
 
         # ============================================================
+        # UPGRADE CHECK
+        #
+        # Argo CD treats Helm pre-upgrade hooks as PreSync hooks, so
+        # GitLab's upgrade-check job can run even on a brand-new sync.
+        # Disable it for initial bootstrap.
+        # ============================================================
+
+        upgradeCheck:
+          enabled: false
+
+        # ============================================================
         # GITLAB RUNNER
         #
         # Enable the GitLab Runner subchart.
