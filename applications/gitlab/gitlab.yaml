@@ -251,16 +251,80 @@ spec:
           enabled: false
 
         # ============================================================
+        # SINGLE-NODE BOOTSTRAP TUNING
+        #
+        # This homelab currently has a single worker node, so pin the
+        # autoscaled components to one replica to reduce scheduling
+        # pressure during the initial install.
+        # ============================================================
+
+        gitlab:
+          webservice:
+            minReplicas: 1
+            maxReplicas: 1
+            resources:
+              requests:
+                cpu: 100m
+                memory: 1400Mi
+              limits:
+                cpu: 500m
+                memory: 2Gi
+
+          sidekiq:
+            minReplicas: 1
+            maxReplicas: 1
+            resources:
+              requests:
+                cpu: 100m
+                memory: 1Gi
+              limits:
+                cpu: 500m
+                memory: 1500Mi
+
+          gitlab-shell:
+            minReplicas: 1
+            maxReplicas: 1
+            resources:
+              requests:
+                cpu: 50m
+                memory: 128Mi
+              limits:
+                cpu: 250m
+                memory: 256Mi
+
+          gitaly:
+            resources:
+              requests:
+                cpu: 50m
+                memory: 256Mi
+              limits:
+                cpu: 500m
+                memory: 1Gi
+
+          toolbox:
+            resources:
+              requests:
+                cpu: 25m
+                memory: 256Mi
+              limits:
+                cpu: 250m
+                memory: 512Mi
+            backups:
+              objectStorage:
+                backend: s3
+                config:
+                  secret: gitlab-backup-storage
+                  key: config
+
+        # ============================================================
         # GITLAB RUNNER
         #
-        # Enable the GitLab Runner subchart.
-        #
-        # We are using Kubernetes executors and will configure the
-        # runner through GitLab's generated runner secret.
+        # Disable the runner for initial bootstrap. We can enable it
+        # again once the core GitLab pods are healthy.
         # ============================================================
 
         gitlab-runner:
-          install: true
+          install: false
 
           rbac:
             create: true
@@ -312,25 +376,19 @@ spec:
         registry:
           enabled: true
           host: registry.harish8.com
+          hpa:
+            minReplicas: 1
+            maxReplicas: 1
+          resources:
+            requests:
+              cpu: 50m
+              memory: 128Mi
+            limits:
+              cpu: 250m
+              memory: 256Mi
           storage:
             secret: gitlab-registry-storage
             key: config
-
-        # ============================================================
-        # TOOLBOX BACKUPS
-        #
-        # The chart no longer uses bundled MinIO for backups.
-        # Point Toolbox at external S3-compatible object storage.
-        # ============================================================
-
-        gitlab:
-          toolbox:
-            backups:
-              objectStorage:
-                backend: s3
-                config:
-                  secret: gitlab-backup-storage
-                  key: config
 
   destination:
     server: https://kubernetes.default.svc
