@@ -314,14 +314,6 @@ spec:
           enabled: true
           host: registry.harish8.com
 
-        # ============================================================
-        # GITALY
-        # ============================================================
-
-        gitlab:
-          gitaly:
-            enabled: true
-
   destination:
     server: https://kubernetes.default.svc
     namespace: gitlab
