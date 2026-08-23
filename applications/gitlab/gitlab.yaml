@@ -1,0 +1,189 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+
+metadata:
+  name: gitlab
+  namespace: argocd
+
+  annotations:
+    argocd.argoproj.io/sync-wave: "40"
+
+spec:
+  project: homelab
+
+  source:
+    repoURL: https://charts.gitlab.io/
+    chart: gitlab
+    targetRevision: 10.2.4
+
+    helm:
+      values: |
+        global:
+          edition: ce
+
+          hosts:
+            domain: harish8.com
+            hostSuffix: ""
+            https: true
+            gitlab:
+              name: git.harish8.com
+
+          # We already have Cilium + Gateway API.
+          # Do not install GitLab's Envoy Gateway.
+          gatewayApi:
+            enabled: false
+
+          ingress:
+            enabled: false
+            configureCertmanager: false
+
+          certmanager:
+            install: false
+
+          kas:
+            enabled: false
+
+          # External CloudNativePG
+          psql:
+            main:
+              host: postgres-rw.databases.svc.cluster.local
+              port: 5432
+              username: gitlab
+              database: gitlabhq_production
+
+            password:
+              useSecret: true
+              secret: gitlab-postgres
+              key: password
+
+          # External Valkey
+          redis:
+            host: valkey.valkey.svc.cluster.local
+            port: 6379
+            user: gitlab
+
+            auth:
+              enabled: true
+              secret: gitlab-valkey-credentials
+              key: password
+
+          # Internal GitLab Gitaly
+          gitaly:
+            enabled: true
+
+          # External MinIO object storage
+          appConfig:
+            object_store:
+              enabled: true
+              proxy_download: true
+
+              connection:
+                secret: gitlab-rails-storage
+                key: connection
+
+            lfs:
+              enabled: true
+              proxy_download: true
+              bucket: gitlab-lfs
+
+              connection:
+                secret: gitlab-rails-storage
+                key: connection
+
+            artifacts:
+              enabled: true
+              proxy_download: true
+              bucket: gitlab-artifacts
+
+              connection:
+                secret: gitlab-rails-storage
+                key: connection
+
+            uploads:
+              enabled: true
+              proxy_download: true
+              bucket: gitlab-uploads
+
+              connection:
+                secret: gitlab-rails-storage
+                key: connection
+
+            packages:
+              enabled: true
+              proxy_download: true
+              bucket: gitlab-packages
+
+              connection:
+                secret: gitlab-rails-storage
+                key: connection
+
+            # Disabled until we specifically need them.
+            externalDiffs:
+              enabled: false
+
+            terraformState:
+              enabled: false
+
+            ciSecureFiles:
+              enabled: false
+
+            agentPlanContent:
+              enabled: false
+
+            dependencyProxy:
+              enabled: false
+
+            # GitLab backups
+            backups:
+              bucket: gitlab-backups
+              tmpBucket: gitlab-tmp
+
+        # Disable bundled cert-manager.
+        # We already run cert-manager in the cluster.
+        certmanager:
+          install: false
+
+        # Disable bundled PostgreSQL.
+        postgresql:
+          install: false
+
+        # Disable bundled Redis/Valkey.
+        redis:
+          install: false
+
+        # Disable bundled MinIO.
+        minio:
+          enabled: false
+
+        # We use Cilium Gateway API instead.
+        nginx-ingress:
+          enabled: false
+
+        # We already have cluster monitoring separately.
+        prometheus:
+          install: false
+
+        # Runner will be deployed separately later.
+        gitlab-runner:
+          install: false
+
+        # GitLab Container Registry
+        registry:
+          enabled: true
+
+        gitlab:
+          gitaly:
+            enabled: true
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: gitlab
+
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
