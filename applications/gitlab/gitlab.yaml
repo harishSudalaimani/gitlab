@@ -19,7 +19,7 @@ spec:
     helm:
       values: |
         # ============================================================
-        # GitLab global configuration
+        # GLOBAL
         # ============================================================
 
         global:
@@ -36,34 +36,39 @@ spec:
             registry:
               name: registry.harish8.com
 
-          # ----------------------------------------------------------
-          # We already use Cilium + Gateway API.
-          # Do not install/configure GitLab's Envoy Gateway.
-          # ----------------------------------------------------------
+          # ==========================================================
+          # Gateway API
+          #
+          # Cilium + Gateway API are already running in the cluster.
+          # GitLab must NOT install Envoy Gateway.
+          # ==========================================================
 
           gatewayApi:
             enabled: false
+            configureCertmanager: false
 
-          # ----------------------------------------------------------
-          # We are NOT using GitLab's bundled NGINX ingress.
-          # ----------------------------------------------------------
+          # ==========================================================
+          # Ingress
+          #
+          # We will expose GitLab through our existing Cilium
+          # Gateway API infrastructure.
+          # ==========================================================
 
           ingress:
             enabled: false
             configureCertmanager: false
 
-          # ----------------------------------------------------------
-          # External cert-manager
-          #
-          # GitLab chart 10.2.4 uses the TOP-LEVEL
-          # installCertmanager value.
-          # ----------------------------------------------------------
+          # ==========================================================
+          # KAS
+          # ==========================================================
 
           kas:
             enabled: false
 
           # ==========================================================
-          # External PostgreSQL - CloudNativePG
+          # PostgreSQL
+          #
+          # External CloudNativePG cluster.
           # ==========================================================
 
           psql:
@@ -79,13 +84,14 @@ spec:
               key: password
 
           # ==========================================================
-          # External Valkey
+          # Valkey
+          #
+          # External Valkey with ACL user "gitlab".
           # ==========================================================
 
           redis:
             host: valkey.valkey.svc.cluster.local
             port: 6379
-
             user: gitlab
 
             auth:
@@ -94,14 +100,16 @@ spec:
               key: password
 
           # ==========================================================
-          # GitLab Gitaly
+          # Gitaly
           # ==========================================================
 
           gitaly:
             enabled: true
 
           # ==========================================================
-          # External MinIO object storage
+          # OBJECT STORAGE
+          #
+          # External MinIO.
           # ==========================================================
 
           appConfig:
@@ -121,7 +129,6 @@ spec:
             lfs:
               enabled: true
               proxy_download: true
-
               bucket: gitlab-lfs
 
               connection:
@@ -135,7 +142,6 @@ spec:
             artifacts:
               enabled: true
               proxy_download: true
-
               bucket: gitlab-artifacts
 
               connection:
@@ -149,7 +155,6 @@ spec:
             uploads:
               enabled: true
               proxy_download: true
-
               bucket: gitlab-uploads
 
               connection:
@@ -157,13 +162,12 @@ spec:
                 key: connection
 
             # --------------------------------------------------------
-            # GitLab Packages
+            # Packages
             # --------------------------------------------------------
 
             packages:
               enabled: true
               proxy_download: true
-
               bucket: gitlab-packages
 
               connection:
@@ -171,7 +175,7 @@ spec:
                 key: connection
 
             # --------------------------------------------------------
-            # Optional object storage features
+            # Disabled optional storage features
             # --------------------------------------------------------
 
             externalDiffs:
@@ -190,7 +194,7 @@ spec:
               enabled: false
 
             # --------------------------------------------------------
-            # GitLab backups
+            # Backups
             # --------------------------------------------------------
 
             backups:
@@ -198,62 +202,112 @@ spec:
               tmpBucket: gitlab-tmp
 
         # ============================================================
-        # IMPORTANT:
+        # CERT-MANAGER
         #
-        # GitLab chart 10.2.4 does NOT accept:
-        #
-        # certmanager:
-        #   install: false
-        #
-        # Use this top-level value instead.
+        # Cluster already has cert-manager.
+        # GitLab must not install it.
         # ============================================================
 
         installCertmanager: false
 
+        # The GitLab chart also contains the certmanager-issuer
+        # subchart. Disable it because certificates are handled by
+        # our cluster-level cert-manager.
+        certmanager-issuer:
+          enabled: false
+
         # ============================================================
-        # Disable bundled PostgreSQL
+        # BUNDLED POSTGRESQL
         # ============================================================
 
         postgresql:
           install: false
 
         # ============================================================
-        # Disable bundled Redis/Valkey
+        # BUNDLED REDIS / VALKEY
         # ============================================================
 
         redis:
           install: false
 
         # ============================================================
-        # Disable bundled MinIO
+        # BUNDLED MINIO
         # ============================================================
 
         minio:
           enabled: false
 
         # ============================================================
-        # Disable bundled NGINX
+        # BUNDLED NGINX
         # ============================================================
 
         nginx-ingress:
           enabled: false
 
         # ============================================================
-        # Disable bundled Prometheus
+        # BUNDLED PROMETHEUS
         # ============================================================
 
         prometheus:
           install: false
 
         # ============================================================
-        # Runner will be deployed separately
+        # GITLAB RUNNER
+        #
+        # Enable the GitLab Runner subchart.
+        #
+        # We are using Kubernetes executors and will configure the
+        # runner through GitLab's generated runner secret.
         # ============================================================
 
         gitlab-runner:
-          install: false
+          install: true
+
+          rbac:
+            create: true
+
+          runners:
+            locked: false
+
+            # The parent GitLab chart creates/configures the actual
+            # runner secret. This value only allows the subchart to
+            # render its configuration.
+            secret: "nonempty"
+
+            config: |
+              [[runners]]
+                name = "gitlab-kubernetes-runner"
+                executor = "kubernetes"
+
+                [runners.kubernetes]
+                  namespace = "gitlab"
+                  image = "ubuntu:22.04"
+
+                  privileged = false
+                  poll_timeout = 600
+
+                  cpu_request = "100m"
+                  memory_request = "256Mi"
+
+                  cpu_limit = "2"
+                  memory_limit = "2Gi"
+
+                  service_cpu_request = "100m"
+                  service_memory_request = "128Mi"
+
+                  service_cpu_limit = "1"
+                  service_memory_limit = "1Gi"
+
+          podAnnotations:
+            gitlab.com/prometheus_scrape: "true"
+            gitlab.com/prometheus_port: "9252"
+
+          podSecurityContext:
+            seccompProfile:
+              type: RuntimeDefault
 
         # ============================================================
-        # GitLab Container Registry
+        # CONTAINER REGISTRY
         # ============================================================
 
         registry:
@@ -261,7 +315,7 @@ spec:
           host: registry.harish8.com
 
         # ============================================================
-        # GitLab subcharts
+        # GITALY
         # ============================================================
 
         gitlab:
