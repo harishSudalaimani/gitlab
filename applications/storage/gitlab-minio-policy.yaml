@@ -1,0 +1,58 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: gitlab-minio-policy
+  namespace: storage
+  annotations:
+    argocd.argoproj.io/sync-wave: "32"
+data:
+  gitlab-policy.json: |
+    {
+      "Version": "2012-10-17",
+      "Statement": [
+        {
+          "Effect": "Allow",
+          "Action": [
+            "s3:ListAllMyBuckets"
+          ],
+          "Resource": [
+            "arn:aws:s3:::*"
+          ]
+        },
+        {
+          "Effect": "Allow",
+          "Action": [
+            "s3:ListBucket",
+            "s3:GetBucketLocation"
+          ],
+          "Resource": [
+            "arn:aws:s3:::gitlab-artifacts",
+            "arn:aws:s3:::gitlab-lfs",
+            "arn:aws:s3:::gitlab-uploads",
+            "arn:aws:s3:::gitlab-packages",
+            "arn:aws:s3:::gitlab-registry",
+            "arn:aws:s3:::gitlab-backups",
+            "arn:aws:s3:::gitlab-tmp"
+          ]
+        },
+        {
+          "Effect": "Allow",
+          "Action": [
+            "s3:GetObject",
+            "s3:PutObject",
+            "s3:DeleteObject",
+            "s3:AbortMultipartUpload",
+            "s3:ListMultipartUploadParts"
+          ],
+          "Resource": [
+            "arn:aws:s3:::gitlab-artifacts/*",
+            "arn:aws:s3:::gitlab-lfs/*",
+            "arn:aws:s3:::gitlab-uploads/*",
+            "arn:aws:s3:::gitlab-packages/*",
+            "arn:aws:s3:::gitlab-registry/*",
+            "arn:aws:s3:::gitlab-backups/*",
+            "arn:aws:s3:::gitlab-tmp/*"
+          ]
+        }
+      ]
+    }

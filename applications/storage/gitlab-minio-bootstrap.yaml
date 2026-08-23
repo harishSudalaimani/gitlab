@@ -1,0 +1,129 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: gitlab-minio-bootstrap
+  namespace: storage
+  annotations:
+    argocd.argoproj.io/sync-wave: "33"
+
+spec:
+  backoffLimit: 6
+
+  template:
+    metadata:
+      labels:
+        app: gitlab-minio-bootstrap
+
+    spec:
+      restartPolicy: OnFailure
+
+      containers:
+        - name: mc
+          image: minio/mc:latest
+
+          env:
+            # MinIO root credentials
+            - name: MINIO_ROOT_USER
+              valueFrom:
+                secretKeyRef:
+                  name: minio-credentials
+                  key: rootUser
+
+            - name: MINIO_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: minio-credentials
+                  key: rootPassword
+
+            # GitLab application credentials
+            - name: GITLAB_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: gitlab-minio-credentials
+                  key: accessKey
+
+            - name: GITLAB_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: gitlab-minio-credentials
+                  key: secretKey
+
+          volumeMounts:
+            - name: policy
+              mountPath: /config
+              readOnly: true
+
+          command:
+            - /bin/sh
+            - -c
+            - |
+              set -eu
+
+              echo "==> Configuring MinIO alias"
+              mc alias set minio \
+                http://minio:9000 \
+                "$MINIO_ROOT_USER" \
+                "$MINIO_ROOT_PASSWORD"
+
+              echo "==> Waiting for MinIO"
+              until mc admin info minio >/dev/null 2>&1; do
+                echo "MinIO not ready yet..."
+                sleep 3
+              done
+
+              echo "==> Creating GitLab user"
+
+              if mc admin user info minio "$GITLAB_ACCESS_KEY" >/dev/null 2>&1; then
+                echo "GitLab user already exists"
+              else
+                mc admin user add \
+                  minio \
+                  "$GITLAB_ACCESS_KEY" \
+                  "$GITLAB_SECRET_KEY"
+              fi
+
+              echo "==> Installing GitLab policy"
+
+              if mc admin policy info minio gitlab-policy >/dev/null 2>&1; then
+                echo "GitLab policy already exists"
+              else
+                mc admin policy create \
+                  minio \
+                  gitlab-policy \
+                  /config/gitlab-policy.json
+              fi
+
+              echo "==> Attaching policy"
+
+              mc admin policy attach \
+                minio \
+                gitlab-policy \
+                --user "$GITLAB_ACCESS_KEY"
+
+              echo "==> Creating GitLab buckets"
+
+              for bucket in \
+                gitlab-artifacts \
+                gitlab-lfs \
+                gitlab-uploads \
+                gitlab-packages \
+                gitlab-registry \
+                gitlab-backups \
+                gitlab-tmp
+              do
+                echo "Creating bucket: $bucket"
+                mc mb --ignore-existing "minio/$bucket"
+              done
+
+              echo "==> Verifying GitLab user"
+              mc admin user info minio "$GITLAB_ACCESS_KEY"
+
+              echo "==> Verifying buckets"
+              mc ls minio
+
+              echo "==> GitLab MinIO bootstrap completed"
+
+      volumes:
+        - name: policy
+          configMap:
+            name: gitlab-minio-policy
