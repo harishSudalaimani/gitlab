@@ -267,24 +267,32 @@ spec:
           webservice:
             minReplicas: 1
             maxReplicas: 1
+            workerProcesses: 1
+            deployment:
+              readinessProbe:
+                timeoutSeconds: 5
+                failureThreshold: 6
+              livenessProbe:
+                timeoutSeconds: 60
+                failureThreshold: 5
             resources:
               requests:
-                cpu: 100m
-                memory: 1400Mi
+                cpu: 300m
+                memory: 3Gi
               limits:
-                cpu: 500m
-                memory: 2Gi
+                cpu: "1"
+                memory: 4Gi
 
           sidekiq:
             minReplicas: 1
             maxReplicas: 1
             resources:
               requests:
-                cpu: 100m
-                memory: 1Gi
-              limits:
                 cpu: 500m
                 memory: 1500Mi
+              limits:
+                cpu: "1"
+                memory: 2500Mi
 
           gitlab-shell:
             minReplicas: 1
@@ -302,20 +310,20 @@ spec:
               enabled: false
             resources:
               requests:
-                cpu: 50m
-                memory: 256Mi
-              limits:
-                cpu: 500m
+                cpu: 200m
                 memory: 1Gi
+              limits:
+                cpu: "1"
+                memory: 2Gi
 
           toolbox:
             resources:
               requests:
-                cpu: 25m
-                memory: 256Mi
-              limits:
-                cpu: 250m
+                cpu: 100m
                 memory: 512Mi
+              limits:
+                cpu: 500m
+                memory: 1Gi
             backups:
               objectStorage:
                 backend: s3
@@ -333,6 +341,15 @@ spec:
 
         gitlab-runner:
           install: true
+          concurrent: 3
+
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
 
           rbac:
             create: true
@@ -357,17 +374,17 @@ spec:
                   privileged = false
                   poll_timeout = 600
 
-                  cpu_request = "100m"
-                  memory_request = "256Mi"
+                  cpu_request = "250m"
+                  memory_request = "512Mi"
 
                   cpu_limit = "2"
-                  memory_limit = "2Gi"
+                  memory_limit = "3Gi"
 
                   service_cpu_request = "100m"
-                  service_memory_request = "128Mi"
+                  service_memory_request = "256Mi"
 
                   service_cpu_limit = "1"
-                  service_memory_limit = "1Gi"
+                  service_memory_limit = "1500Mi"
 
           podAnnotations:
             gitlab.com/prometheus_scrape: "true"
@@ -389,11 +406,11 @@ spec:
             maxReplicas: 1
           resources:
             requests:
-              cpu: 50m
-              memory: 128Mi
+              cpu: 100m
+              memory: 512Mi
             limits:
-              cpu: 250m
-              memory: 256Mi
+              cpu: 500m
+              memory: 1Gi
           storage:
             secret: gitlab-registry-storage
             key: config
