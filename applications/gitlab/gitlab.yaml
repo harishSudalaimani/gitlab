@@ -277,10 +277,10 @@ spec:
                 failureThreshold: 5
             resources:
               requests:
-                cpu: 300m
+                cpu: 250m
                 memory: 3Gi
               limits:
-                cpu: "1"
+                cpu: "2"
                 memory: 4Gi
 
           sidekiq:
@@ -288,7 +288,7 @@ spec:
             maxReplicas: 1
             resources:
               requests:
-                cpu: 500m
+                cpu: 250m
                 memory: 1500Mi
               limits:
                 cpu: "1"
@@ -310,7 +310,7 @@ spec:
               enabled: false
             resources:
               requests:
-                cpu: 200m
+                cpu: 100m
                 memory: 1Gi
               limits:
                 cpu: "1"
@@ -319,7 +319,7 @@ spec:
           toolbox:
             resources:
               requests:
-                cpu: 100m
+                cpu: 50m
                 memory: 512Mi
               limits:
                 cpu: 500m
@@ -341,7 +341,7 @@ spec:
 
         gitlab-runner:
           install: true
-          concurrent: 3
+          concurrent: 2
 
           resources:
             requests:
@@ -406,7 +406,7 @@ spec:
             maxReplicas: 1
           resources:
             requests:
-              cpu: 100m
+              cpu: 50m
               memory: 512Mi
             limits:
               cpu: 500m
