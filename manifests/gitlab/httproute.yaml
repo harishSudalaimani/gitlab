@@ -5,9 +5,10 @@ metadata:
   namespace: gitlab
 spec:
   parentRefs:
-    - name: public-gateway
-      namespace: gateway
+    - group: gateway.networking.k8s.io
       kind: Gateway
+      name: public-gateway
+      namespace: gateway
   hostnames:
     - git.harish8.com
   rules:
@@ -16,5 +17,8 @@ spec:
             type: PathPrefix
             value: /
       backendRefs:
-        - name: gitlab-webservice-default
+        - group: ""
+          kind: Service
+          name: gitlab-webservice-default
           port: 8181
+          weight: 1
