@@ -326,12 +326,13 @@ spec:
         # ============================================================
         # GITLAB RUNNER
         #
-        # Disable the runner for initial bootstrap. We can enable it
-        # again once the core GitLab pods are healthy.
+        # The runner was disabled for the initial bootstrap to reduce
+        # moving parts on a single-node cluster. Enable it now that
+        # the core GitLab components are healthy.
         # ============================================================
 
         gitlab-runner:
-          install: false
+          install: true
 
           rbac:
             create: true
