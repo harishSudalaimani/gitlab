@@ -18,6 +18,10 @@ spec:
 
     helm:
       values: |
+        # ============================================================
+        # GitLab global configuration
+        # ============================================================
+
         global:
           edition: ce
 
@@ -25,25 +29,43 @@ spec:
             domain: harish8.com
             hostSuffix: ""
             https: true
+
             gitlab:
               name: git.harish8.com
 
-          # We already have Cilium + Gateway API.
-          # Do not install GitLab's Envoy Gateway.
+            registry:
+              name: registry.harish8.com
+
+          # ----------------------------------------------------------
+          # We already use Cilium + Gateway API.
+          # Do not install/configure GitLab's Envoy Gateway.
+          # ----------------------------------------------------------
+
           gatewayApi:
             enabled: false
+
+          # ----------------------------------------------------------
+          # We are NOT using GitLab's bundled NGINX ingress.
+          # ----------------------------------------------------------
 
           ingress:
             enabled: false
             configureCertmanager: false
 
-          certmanager:
-            install: false
+          # ----------------------------------------------------------
+          # External cert-manager
+          #
+          # GitLab chart 10.2.4 uses the TOP-LEVEL
+          # installCertmanager value.
+          # ----------------------------------------------------------
 
           kas:
             enabled: false
 
-          # External CloudNativePG
+          # ==========================================================
+          # External PostgreSQL - CloudNativePG
+          # ==========================================================
+
           psql:
             main:
               host: postgres-rw.databases.svc.cluster.local
@@ -56,10 +78,14 @@ spec:
               secret: gitlab-postgres
               key: password
 
+          # ==========================================================
           # External Valkey
+          # ==========================================================
+
           redis:
             host: valkey.valkey.svc.cluster.local
             port: 6379
+
             user: gitlab
 
             auth:
@@ -67,12 +93,19 @@ spec:
               secret: gitlab-valkey-credentials
               key: password
 
-          # Internal GitLab Gitaly
+          # ==========================================================
+          # GitLab Gitaly
+          # ==========================================================
+
           gitaly:
             enabled: true
 
+          # ==========================================================
           # External MinIO object storage
+          # ==========================================================
+
           appConfig:
+
             object_store:
               enabled: true
               proxy_download: true
@@ -81,43 +114,66 @@ spec:
                 secret: gitlab-rails-storage
                 key: connection
 
+            # --------------------------------------------------------
+            # Git LFS
+            # --------------------------------------------------------
+
             lfs:
               enabled: true
               proxy_download: true
+
               bucket: gitlab-lfs
 
               connection:
                 secret: gitlab-rails-storage
                 key: connection
 
+            # --------------------------------------------------------
+            # CI/CD artifacts
+            # --------------------------------------------------------
+
             artifacts:
               enabled: true
               proxy_download: true
+
               bucket: gitlab-artifacts
 
               connection:
                 secret: gitlab-rails-storage
                 key: connection
 
+            # --------------------------------------------------------
+            # User uploads
+            # --------------------------------------------------------
+
             uploads:
               enabled: true
               proxy_download: true
+
               bucket: gitlab-uploads
 
               connection:
                 secret: gitlab-rails-storage
                 key: connection
 
+            # --------------------------------------------------------
+            # GitLab Packages
+            # --------------------------------------------------------
+
             packages:
               enabled: true
               proxy_download: true
+
               bucket: gitlab-packages
 
               connection:
                 secret: gitlab-rails-storage
                 key: connection
 
-            # Disabled until we specifically need them.
+            # --------------------------------------------------------
+            # Optional object storage features
+            # --------------------------------------------------------
+
             externalDiffs:
               enabled: false
 
@@ -133,43 +189,80 @@ spec:
             dependencyProxy:
               enabled: false
 
+            # --------------------------------------------------------
             # GitLab backups
+            # --------------------------------------------------------
+
             backups:
               bucket: gitlab-backups
               tmpBucket: gitlab-tmp
 
-        # Disable bundled cert-manager.
-        # We already run cert-manager in the cluster.
-        certmanager:
-          install: false
+        # ============================================================
+        # IMPORTANT:
+        #
+        # GitLab chart 10.2.4 does NOT accept:
+        #
+        # certmanager:
+        #   install: false
+        #
+        # Use this top-level value instead.
+        # ============================================================
 
-        # Disable bundled PostgreSQL.
+        installCertmanager: false
+
+        # ============================================================
+        # Disable bundled PostgreSQL
+        # ============================================================
+
         postgresql:
           install: false
 
-        # Disable bundled Redis/Valkey.
+        # ============================================================
+        # Disable bundled Redis/Valkey
+        # ============================================================
+
         redis:
           install: false
 
-        # Disable bundled MinIO.
+        # ============================================================
+        # Disable bundled MinIO
+        # ============================================================
+
         minio:
           enabled: false
 
-        # We use Cilium Gateway API instead.
+        # ============================================================
+        # Disable bundled NGINX
+        # ============================================================
+
         nginx-ingress:
           enabled: false
 
-        # We already have cluster monitoring separately.
+        # ============================================================
+        # Disable bundled Prometheus
+        # ============================================================
+
         prometheus:
           install: false
 
-        # Runner will be deployed separately later.
+        # ============================================================
+        # Runner will be deployed separately
+        # ============================================================
+
         gitlab-runner:
           install: false
 
+        # ============================================================
         # GitLab Container Registry
+        # ============================================================
+
         registry:
           enabled: true
+          host: registry.harish8.com
+
+        # ============================================================
+        # GitLab subcharts
+        # ============================================================
 
         gitlab:
           gitaly:
