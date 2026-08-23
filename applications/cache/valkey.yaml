@@ -25,6 +25,9 @@ spec:
           aclUsers:
             default:
               permissions: "~* &* +@all"
+            
+            gitlab:
+              permissions: "~* &* +@all"
 
         dataStorage:
           enabled: true
