@@ -1,0 +1,8 @@
+s3:
+  bucket: gitlab-registry
+  region: us-east-1
+  regionendpoint: http://minio.storage.svc.cluster.local:9000
+  accesskey: YOUR_ACCESS_KEY
+  secretkey: YOUR_SECRET_KEY
+  v4auth: true
+  pathstyle: true

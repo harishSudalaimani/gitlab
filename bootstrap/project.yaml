@@ -1,0 +1,29 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: homelab
+  namespace: argocd
+
+spec:
+  description: Homelab GitOps Project
+
+  sourceRepos:
+    - ssh://git@gitlab.com/harishSudalaimani/gitlab.git
+    - https://bitnami.github.io/sealed-secrets
+    - https://charts.jetstack.io
+    - https://charts.longhorn.io
+    - https://charts.min.io/
+    - https://valkey.io/valkey-helm/
+    - https://charts.gitlab.io/
+
+  destinations:
+    - server: https://kubernetes.default.svc
+      namespace: "*"
+
+  clusterResourceWhitelist:
+    - group: "*"
+      kind: "*"
+
+  namespaceResourceWhitelist:
+    - group: "*"
+      kind: "*"
