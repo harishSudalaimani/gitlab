@@ -11,7 +11,7 @@ spec:
   project: homelab
 
   source:
-    repoURL: ssh://git@gitlab.com/harishSudalaimani/gitlab.git
+    repoURL: ssh://git@github.com/harishSudalaimani/gitlab.git
     targetRevision: main
     path: manifests/databases/postgres
 

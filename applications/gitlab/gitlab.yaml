@@ -12,7 +12,7 @@ spec:
   project: homelab
 
   source:
-    repoURL: ssh://git@gitlab.com/harishSudalaimani/gitlab.git
+    repoURL: ssh://git@github.com/harishSudalaimani/gitlab.git
     targetRevision: main
     # Vendored GitLab chart 10.2.4 with a small Gitaly StatefulSet patch.
     path: vendor/gitlab
