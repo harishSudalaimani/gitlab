@@ -8,7 +8,7 @@ spec:
   description: Homelab GitOps Project
 
   sourceRepos:
-    - ssh://git@gitlab.com/harishSudalaimani/gitlab.git
+    - ssh://git@github.com/harishSudalaimani/gitlab.git
     - https://bitnami.github.io/sealed-secrets
     - https://charts.jetstack.io
     - https://charts.longhorn.io
