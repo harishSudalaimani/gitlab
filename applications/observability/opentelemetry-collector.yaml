@@ -7,15 +7,19 @@ metadata:
     argocd.argoproj.io/sync-wave: "20"
 spec:
   project: homelab
+
   source:
     repoURL: https://open-telemetry.github.io/opentelemetry-helm-charts
     chart: opentelemetry-collector
     targetRevision: 0.175.0
+
     helm:
       values: |
         mode: daemonset
+
         image:
           repository: ghcr.io/open-telemetry/opentelemetry-collector-releases/opentelemetry-collector-k8s
+
         command:
           name: otelcol-k8s
 
@@ -24,6 +28,7 @@ spec:
             enabled: true
             includeCollectorLogs: false
             storeCheckpoints: true
+
           kubernetesAttributes:
             enabled: true
 
@@ -41,15 +46,20 @@ spec:
               protocols:
                 grpc:
                   endpoint: ${env:MY_POD_IP}:4317
+
                 http:
                   endpoint: ${env:MY_POD_IP}:4318
+
             filelog:
               include:
                 - /var/log/pods/*/*/*.log
+
               exclude:
                 - /var/log/pods/observability_opentelemetry-collector*/*/*.log
+
               start_at: end
               include_file_path: true
+
               operators:
                 - type: container
 
@@ -58,30 +68,55 @@ spec:
               check_interval: 5s
               limit_percentage: 80
               spike_limit_percentage: 15
+
             batch:
               send_batch_size: 1024
               timeout: 5s
 
           exporters:
+            otlphttp/prometheus:
+              endpoint: http://kube-prometheus-stack-prometheus.observability.svc.cluster.local:9090/api/v1/otlp
+
             otlp/tempo:
               endpoint: tempo.observability.svc.cluster.local:4317
               tls:
                 insecure: true
+
             otlphttp/loki:
               endpoint: http://loki.observability.svc.cluster.local:3100/otlp
+
             debug:
               verbosity: basic
 
           service:
             pipelines:
+              metrics:
+                receivers:
+                  - otlp
+                processors:
+                  - memory_limiter
+                  - batch
+                exporters:
+                  - otlphttp/prometheus
+
               traces:
-                receivers: [otlp]
-                processors: [memory_limiter, batch]
-                exporters: [otlp/tempo]
+                receivers:
+                  - otlp
+                processors:
+                  - memory_limiter
+                  - batch
+                exporters:
+                  - otlp/tempo
+
               logs:
-                receivers: [otlp, filelog]
-                processors: [memory_limiter, batch]
-                exporters: [otlphttp/loki]
+                receivers:
+                  - otlp
+                  - filelog
+                processors:
+                  - memory_limiter
+                  - batch
+                exporters:
+                  - otlphttp/loki
 
         serviceMonitor:
           enabled: true
@@ -89,10 +124,12 @@ spec:
   destination:
     server: https://kubernetes.default.svc
     namespace: observability
+
   syncPolicy:
     automated:
       prune: true
       selfHeal: true
+
     syncOptions:
       - CreateNamespace=true
       - ServerSideApply=true

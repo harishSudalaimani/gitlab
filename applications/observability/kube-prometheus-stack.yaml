@@ -51,6 +51,7 @@ spec:
               isDefault: false
               jsonData:
                 maxLines: 1000
+
             - name: Tempo
               uid: tempo
               type: tempo
@@ -69,6 +70,9 @@ spec:
             replicas: 1
             retention: 15d
             retentionSize: 8GB
+
+            enableOTLPReceiver: true
+
             storageSpec:
               volumeClaimTemplate:
                 spec:
@@ -77,6 +81,7 @@ spec:
                   resources:
                     requests:
                       storage: 10Gi
+
             serviceMonitorSelectorNilUsesHelmValues: false
             podMonitorSelectorNilUsesHelmValues: false
             serviceMonitorNamespaceSelector: {}
@@ -84,16 +89,19 @@ spec:
 
         kubeStateMetrics:
           enabled: true
+
         nodeExporter:
           enabled: true
 
   destination:
     server: https://kubernetes.default.svc
     namespace: observability
+
   syncPolicy:
     automated:
       prune: true
       selfHeal: true
+
     syncOptions:
       - CreateNamespace=true
       - ServerSideApply=true
