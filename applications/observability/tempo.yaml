@@ -1,0 +1,50 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: tempo
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "12"
+spec:
+  project: homelab
+  source:
+    repoURL: https://grafana-community.github.io/helm-charts
+    chart: tempo
+    targetRevision: 3.1.0
+    helm:
+      values: |
+        tempo:
+          reportingEnabled: false
+          storage:
+            trace:
+              backend: local
+              local:
+                path: /var/tempo
+          receivers:
+            otlp:
+              protocols:
+                http:
+                  endpoint: "0.0.0.0:4318"
+                grpc:
+                  endpoint: "0.0.0.0:4317"
+
+        persistence:
+          enabled: true
+          storageClassName: longhorn
+          accessModes:
+            - ReadWriteOnce
+          size: 10Gi
+
+        serviceMonitor:
+          enabled: true
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: observability
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true

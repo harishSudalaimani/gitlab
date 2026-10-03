@@ -1,0 +1,95 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: opentelemetry-collector
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "20"
+spec:
+  project: homelab
+  source:
+    repoURL: https://open-telemetry.github.io/opentelemetry-helm-charts
+    chart: opentelemetry-collector
+    targetRevision: 0.175.0
+    helm:
+      values: |
+        mode: daemonset
+        image:
+          repository: ghcr.io/open-telemetry/opentelemetry-collector-releases/opentelemetry-collector-k8s
+        command:
+          name: otelcol-k8s
+
+        presets:
+          logsCollection:
+            enabled: true
+            includeCollectorLogs: false
+            storeCheckpoints: true
+          kubernetesAttributes:
+            enabled: true
+
+        resources:
+          requests:
+            cpu: 100m
+            memory: 256Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
+
+        config:
+          receivers:
+            otlp:
+              protocols:
+                grpc:
+                  endpoint: ${env:MY_POD_IP}:4317
+                http:
+                  endpoint: ${env:MY_POD_IP}:4318
+            filelog:
+              include:
+                - /var/log/pods/*/*/*.log
+              exclude:
+                - /var/log/pods/observability_opentelemetry-collector*/*/*.log
+              start_at: end
+              include_file_path: true
+              operators:
+                - type: container
+
+          processors:
+            memory_limiter:
+              check_interval: 5s
+              limit_percentage: 80
+              spike_limit_percentage: 15
+            batch:
+              send_batch_size: 1024
+              timeout: 5s
+
+          exporters:
+            otlp/tempo:
+              endpoint: tempo.observability.svc.cluster.local:4317
+              tls:
+                insecure: true
+            otlphttp/loki:
+              endpoint: http://loki.observability.svc.cluster.local:3100/otlp
+            debug:
+              verbosity: basic
+
+          service:
+            pipelines:
+              traces:
+                receivers: [otlp]
+                processors: [memory_limiter, batch]
+                exporters: [otlp/tempo]
+              logs:
+                receivers: [otlp, filelog]
+                processors: [memory_limiter, batch]
+                exporters: [otlphttp/loki]
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: observability
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
