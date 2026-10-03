@@ -15,6 +15,9 @@ spec:
     - https://charts.min.io/
     - https://valkey.io/valkey-helm/
     - https://charts.gitlab.io/
+    - https://prometheus-community.github.io/helm-charts
+    - https://grafana-community.github.io/helm-charts
+    - https://open-telemetry.github.io/opentelemetry-helm-charts
 
   destinations:
     - server: https://kubernetes.default.svc

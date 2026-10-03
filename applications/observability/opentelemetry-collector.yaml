@@ -69,6 +69,8 @@ spec:
                 insecure: true
             otlphttp/loki:
               endpoint: http://loki.observability.svc.cluster.local:3100/otlp
+            prometheus:
+              endpoint: ${env:MY_POD_IP}:8889
             debug:
               verbosity: basic
 
@@ -82,6 +84,20 @@ spec:
                 receivers: [otlp, filelog]
                 processors: [memory_limiter, batch]
                 exporters: [otlphttp/loki]
+              metrics:
+                receivers: [otlp]
+                processors: [memory_limiter, batch]
+                exporters: [prometheus]
+
+        ports:
+          metrics:
+            enabled: true
+            containerPort: 8889
+            servicePort: 8889
+            protocol: TCP
+
+        serviceMonitor:
+          enabled: true
 
   destination:
     server: https://kubernetes.default.svc
