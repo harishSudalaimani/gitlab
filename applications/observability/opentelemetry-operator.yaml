@@ -1,4 +1,3 @@
-
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
@@ -33,14 +32,6 @@ spec:
         manager:
           collectorImage:
             repository: ghcr.io/open-telemetry/opentelemetry-collector-releases/opentelemetry-collector-k8s
-
-        resources:
-          requests:
-            cpu: 50m
-            memory: 128Mi
-          limits:
-            cpu: 250m
-            memory: 256Mi
 
   destination:
     server: https://kubernetes.default.svc
