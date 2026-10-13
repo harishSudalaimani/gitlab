@@ -265,7 +265,7 @@ spec:
 
         gitlab:
           webservice:
-            minReplicas: 1
+            minReplicas: 2
             maxReplicas: 2
             workerProcesses: 1
             deployment:
